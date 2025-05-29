@@ -31,7 +31,16 @@ export function NFTMarketplace() {
     const handleBuy = async () => {
         if (!account) return;
         try {
-            const tx = await buyNFT(Number(tokenIdForBuy), price);
+            // First get the listing to get the correct price
+            const listingData = await getListing(Number(tokenIdForBuy));
+            if (!listingData) {
+                throw new Error('Listing not found');
+            }
+            if (listingData.isSold) {
+                throw new Error('NFT is already sold');
+            }
+
+            const tx = await buyNFT(Number(tokenIdForBuy), listingData.price);
             console.log('Bought NFT:', tx);
         } catch (error) {
             console.error('Failed to buy:', error);
